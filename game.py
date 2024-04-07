@@ -34,7 +34,7 @@ last_col = None
 grid[player_row][player_col] = 'P'
 
 # List to store visited cells
-visited_cells = [(player_row, player_col)]
+visited_cell = (None,None)
 
 # Initialize Pygame
 pygame.init()
@@ -90,10 +90,10 @@ while not done:
                     player_row = row
                     player_col = col
                     grid[player_row][player_col] = 'P'
-                    visited_cells = visited_cells[-2:]
+                    last_col=None
+                    last_row=None
                 else:
-                    visited_cells.append((row, col))
-                    visited_cells = visited_cells[-2:]
+                    
                     last_row=row
                     last_col=col
     # --- Drawing code should go here
@@ -105,7 +105,7 @@ while not done:
     for row in range(GRID_SIZE):
         for col in range(GRID_SIZE):
             cell_color = BLACK
-            if (row, col) == visited_cells[-1]:
+            if (row, col) == (last_row,last_col):
                 cell_color = GRAY
             pygame.draw.rect(screen, cell_color, [(MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
                                                   (MARGIN + HEIGHT) * row + MARGIN + BOARD_MARGIN,
@@ -116,9 +116,9 @@ while not done:
                                (MARGIN + HEIGHT) * row + MARGIN + 10 + BOARD_MARGIN))
 
     # Draw the path between the last two visited cells
-    if len(visited_cells) >= 2:
-        current_cell = visited_cells[-2]
-        next_cell = visited_cells[-1]
+    if last_col!=None and last_row!=None:
+        current_cell = (player_row, player_col)
+        next_cell = (last_row,last_col)
         pygame.draw.line(screen, GREEN, [(MARGIN + WIDTH) * current_cell[1] + MARGIN + WIDTH // 2 + BOARD_MARGIN,
                                          (MARGIN + HEIGHT) * current_cell[0] + MARGIN + HEIGHT // 2 + BOARD_MARGIN],
                          [(MARGIN + WIDTH) * next_cell[1] + MARGIN + WIDTH // 2 + BOARD_MARGIN,
