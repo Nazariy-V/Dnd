@@ -1,10 +1,23 @@
-WIDTH = 360
-HEIGHT = 480
+
 FPS = 30
 
-# Define Colors 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+
 RED = (255, 0, 0)
-GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+GRAY = (92, 92, 92)
+
+WIDTH = 64
+HEIGHT = 64
+
+MARGIN = 5
+
+MY_PLAYER="1"
+GRID_SIZE = 10
+
+BOARD_MARGIN=300
+
+START_ROW=6
+START_COL=5

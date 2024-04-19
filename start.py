@@ -1,6 +1,8 @@
 import pygame, sys, os
-from button import Button
-
+from button import *
+from connect import*
+from characters import *
+from settings import *
 
 pygame.init()
 
@@ -9,8 +11,7 @@ pygame.display.set_caption("Menu")
 
 BG = pygame.image.load("assets/Background.png")
 
-def get_font(size): # Returns Press-Start-2P in the desired size
-    return pygame.font.Font("assets/font.ttf", size)
+
 
 def play():
     exec(open("game.py").read())
