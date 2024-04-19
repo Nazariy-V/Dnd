@@ -27,14 +27,14 @@ move_time=0
 visited_cell = (None,None)
 
 buttons=[]
-buttons.append(Button(image=None, pos=(560, 460), 
-                            text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green"))
+buttons.append(Button(image=None, pos=(0, 0), 
+                            text_input="BACK", font=get_font(50), base_color="Black", hovering_color="Green"))
 # Initialize Pygame
 pygame.init()
 
 # Set the width and height of the screen [width, height]
-WINDOW_SIZE = [(WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,#1295,695
-               (HEIGHT + MARGIN) * GRID_SIZE + MARGIN]
+WINDOW_SIZE = [(WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,
+               (HEIGHT + MARGIN) * GRID_SIZE + MARGIN]#1295,695
 screen = pygame.display.set_mode(WINDOW_SIZE)
 
 pygame.display.set_caption("DnD user")
@@ -73,7 +73,6 @@ del n
 del m
 # Loop until the user clicks the close button
 done = False
-
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 
@@ -92,22 +91,22 @@ while not done:
             row = (pos[1]) // (HEIGHT + MARGIN)
 
             
-            # Move the player to the clicked position if it's within the grid
-            if 0 <= row < GRID_SIZE and 0 <= col < GRID_SIZE:
-                if last_row==row and last_col==col:
-                    grid[player_row][player_col] = ' '
-                    d_row= 1 if players[MY_PLAYER].row<row else -1
-                    d_col= 1 if players[MY_PLAYER].col<col else -1
-                    target_row=row
-                    target_col=col
+            if get_turn() == MY_PLAYER:
+                if 0 <= row < GRID_SIZE and 0 <= col < GRID_SIZE:
+                    if last_row==row and last_col==col:
+                        grid[player_row][player_col] = ' '
+                        d_row= 1 if players[MY_PLAYER].row<row else -1
+                        d_col= 1 if players[MY_PLAYER].col<col else -1
+                        target_row=row
+                        target_col=col
                     
-                    grid[players[MY_PLAYER].row][players[MY_PLAYER].col] = MY_PLAYER
-                    last_col=None
-                    last_row=None
-                else:
+                        grid[players[MY_PLAYER].row][players[MY_PLAYER].col] = MY_PLAYER
+                        last_col=None
+                        last_row=None
+                    else:
                     
-                    last_row=row
-                    last_col=col
+                        last_row=row
+                        last_col=col
             
     if move_time==2 and (d_row!=0 or d_col!=0):
         if d_row==0:
