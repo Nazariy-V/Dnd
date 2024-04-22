@@ -1,5 +1,4 @@
 import pygame
-import dnd_character
 SHEET_SIZE=(384,256)
 UNIT_SIZE=(32,32)
 def clip(surface, x, y, x_size, y_size): #Get a part of the image

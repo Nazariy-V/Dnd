@@ -2,11 +2,9 @@ import pygame
 import sys,random
 from connect import *
 from settings import *
-from characters import *
+from tiling import *
 from button import *
 # Define some colors
-
-
 # Initialize the grid with empty spaces
 grid = [[' ' for i in range(GRID_SIZE)] for j in range(GRID_SIZE)]
 
@@ -37,7 +35,7 @@ WINDOW_SIZE = [(WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,
                (HEIGHT + MARGIN) * GRID_SIZE + MARGIN]#1295,695
 screen = pygame.display.set_mode(WINDOW_SIZE)
 
-pygame.display.set_caption("DnD user")
+pygame.display.set_caption("DnD")
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, color, row, col,type,character):

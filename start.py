@@ -1,7 +1,7 @@
 import pygame, sys, os
 from button import *
 from connect import*
-from characters import *
+from tiling import *
 from settings import *
 
 pygame.init()
