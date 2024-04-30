@@ -4,11 +4,10 @@ from connect import *
 from settings import *
 from tiling import *
 from button import *
-# Define some colors
-# Initialize the grid with empty spaces
+from attacks import *
+
 grid = [[' ' for i in range(GRID_SIZE)] for j in range(GRID_SIZE)]
 
-# Set the initial position of the player
 players=dict()
 player_row = START_ROW
 player_col = START_COL
@@ -21,16 +20,17 @@ d_col=0
 target_row=None
 target_col=None
 move_time=0
-# List to store visited cells
+attacking=False
 visited_cell = (None,None)
 
 buttons=[]
-buttons.append(Button(image=None, pos=(0, 0), 
-                            text_input="BACK", font=get_font(50), base_color="Black", hovering_color="Green"))
-# Initialize Pygame
+
+buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + BOARD_MARGIN*1.5,
+               (HEIGHT + MARGIN)), 
+                            text_input="shortsword", font=get_font(30), base_color="Gray", hovering_color="White"))
+
 pygame.init()
 
-# Set the width and height of the screen [width, height]
 WINDOW_SIZE = [(WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,
                (HEIGHT + MARGIN) * GRID_SIZE + MARGIN]#1295,695
 screen = pygame.display.set_mode(WINDOW_SIZE)
@@ -69,38 +69,48 @@ for i in range(5):
     grid[n][m]="obj" if grid[n][m]==" " else grid[n][m]
 del n
 del m
-# Loop until the user clicks the close button
+
 done = False
-# Used to manage how fast the screen updates
+
 clock = pygame.time.Clock()
 
-# -------- Main Program Loop -----------
+damage,at_range=(0,-1)
+
 while not done:
-    # --- Main event loop
+
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             done = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            # Get the mouse position
             pos = pygame.mouse.get_pos()
-
-            # Change the x/y screen coordinates to grid coordinates
+            for thing in buttons:
+                if thing.checkForInput(pos):
+                    attacking=False if attacking else True
+                    damage,at_range = attack(eval(thing.text_input)())
+            
             col = (pos[0] - BOARD_MARGIN) // (WIDTH + MARGIN)
             row = (pos[1]) // (HEIGHT + MARGIN)
-
+            
             
             if get_turn() == MY_PLAYER:
+                
                 if 0 <= row < GRID_SIZE and 0 <= col < GRID_SIZE:
+                    if grid[row][col] != " " and attacking == True and ((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
+                        opponent= grid[row][col]
+                        print(f"{opponent} damaged for {damage}")
+                        attacking=False
                     if last_row==row and last_col==col:
                         grid[player_row][player_col] = ' '
                         d_row= 1 if players[MY_PLAYER].row<row else -1
                         d_col= 1 if players[MY_PLAYER].col<col else -1
                         target_row=row
                         target_col=col
-                    
+                        damage,at_range=(0,-1)
                         grid[players[MY_PLAYER].row][players[MY_PLAYER].col] = MY_PLAYER
                         last_col=None
                         last_row=None
+                        attacking=False
                     else:
                     
                         last_row=row
@@ -141,10 +151,10 @@ while not done:
         players[MY_PLAYER].image
         target_col=None
     
-    # First, clear the screen to white.
+    
     screen.fill(BLACK)
 
-    # Draw the grid
+
     
    
     for row in range(GRID_SIZE):
@@ -152,6 +162,8 @@ while not done:
             cell_color = GRAY
             if (row, col) == (last_row,last_col):
                 cell_color = WHITE
+            if ((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
+                cell_color = RED
             pygame.draw.rect(screen, cell_color, [(MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
                                                   (MARGIN + HEIGHT) * row + MARGIN,
                                                   WIDTH, HEIGHT])
@@ -164,7 +176,7 @@ while not done:
                 current=players[grid[row][col]]
                 screen.blit(current.image, ((MARGIN + WIDTH) * current.col + MARGIN + BOARD_MARGIN,
                                (MARGIN + HEIGHT) * current.row + MARGIN))
-    # draw line
+    
     
     if last_col!=None and last_row!=None:
         current_cell = (players[MY_PLAYER].row, players[MY_PLAYER].col)
@@ -177,14 +189,9 @@ while not done:
         button.changeColor(pygame.mouse.get_pos())
         button.update(screen)
 
-    # Draw all the sprites
-
-    # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 
-    # --- Limit frames per second
     clock.tick(60)
 
-# Close the window and quit.
 pygame.quit()
 sys.exit()
