@@ -28,6 +28,9 @@ buttons=[]
 buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + BOARD_MARGIN*1.5,
                (HEIGHT + MARGIN)), 
                             text_input="shortsword", font=get_font(30), base_color="Gray", hovering_color="White"))
+buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + BOARD_MARGIN*1.5,
+               (HEIGHT + MARGIN)*2), 
+                            text_input="shortbow", font=get_font(30), base_color="Gray", hovering_color="White"))
 
 pygame.init()
 
@@ -63,13 +66,13 @@ all_sprites_group.add(players["2"])
 
 for player,ob in players.items():
     grid[ob.row][ob.col]=player
-for i in range(5):
+for i in range(OBJECTS):
     n=random.randint(1,GRID_SIZE-2)
     m=random.randint(1,GRID_SIZE-2)
     grid[n][m]="obj" if grid[n][m]==" " else grid[n][m]
 del n
 del m
-
+rock=pygame.image.load(f"assets/Rock Pile.png")
 done = False
 
 clock = pygame.time.Clock()
@@ -162,7 +165,7 @@ while not done:
             cell_color = GRAY
             if (row, col) == (last_row,last_col):
                 cell_color = WHITE
-            if ((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
+            if attacking==True and((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
                 cell_color = RED
             pygame.draw.rect(screen, cell_color, [(MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
                                                   (MARGIN + HEIGHT) * row + MARGIN,
@@ -170,7 +173,7 @@ while not done:
             font = pygame.font.SysFont(None, 30)
             text = font.render(grid[row][col], True, GREEN)
             if grid[row][col] =="obj":
-                screen.blit(text, ((MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
+                screen.blit(rock, ((MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
                                (MARGIN + HEIGHT) * row + MARGIN))
             elif  grid[row][col] != ' ':
                 current=players[grid[row][col]]
