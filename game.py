@@ -23,26 +23,28 @@ move_time=0
 attacking=False
 visited_cell = (None,None)
 
-buttons=[]
 
-buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + BOARD_MARGIN*1.5,
-               (HEIGHT + MARGIN)), 
-                            text_input="shortsword", font=get_font(30), base_color="Gray", hovering_color="White"))
-buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + BOARD_MARGIN*1.5,
-               (HEIGHT + MARGIN)*2), 
-                            text_input="shortbow", font=get_font(30), base_color="Gray", hovering_color="White"))
 
 pygame.init()
 
 WINDOW_SIZE = [(WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,
                (HEIGHT + MARGIN) * GRID_SIZE + MARGIN]#1295,695
 screen = pygame.display.set_mode(WINDOW_SIZE)
-
+pygame_icon= pygame.image.load("assets/d20.jpg")
+pygame.display.set_icon(pygame_icon)
 pygame.display.set_caption("DnD")
 
+attack_animation=(None,None)
+counter= 0
+pick=0
+anims = []
+for i in range(1,3):
+    anims.append([pygame.image.load(f"assets/attacks/{i}/{j}.png") for j in range(1,7)])
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self, color, row, col,type,character):
+    def __init__(self, color, row, col,sheet,type,character):
         super().__init__()
+        self.sheet=sheet
         self.row=row
         self.col=col
         self.color=color
@@ -57,12 +59,9 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(get_moving(self.type,self.character,rotation)[self.pos],(WIDTH,HEIGHT))
         self.pos=1 if self.pos==0 else 0
 all_sprites_group = pygame.sprite.Group()
-for conection in get_connections():
-    players[conection]=Player(GREEN,player_row,player_col,"soldier",(0,0))
+for conection,charr in get_connections().items():
+    players[conection]=Player(*charr)
     all_sprites_group.add(players[conection])
-
-players["2"]=Player(GREEN,player_row+1,player_col+1,"soldier",(1,0))
-all_sprites_group.add(players["2"])
 
 for player,ob in players.items():
     grid[ob.row][ob.col]=player
@@ -74,7 +73,14 @@ del n
 del m
 rock=pygame.image.load(f"assets/Rock Pile.png")
 done = False
-
+buttons=[]
+inventory = dict()
+for i in players[MY_PLAYER].sheet.inventory:
+    if i.equipment_category['index'] == "weapon":
+        buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + BOARD_MARGIN*1.5,
+                            (HEIGHT + MARGIN)), 
+                            text_input=i.name, font=get_font(30), base_color="Gray", hovering_color="White"))
+        inventory[i.name] = i
 clock = pygame.time.Clock()
 
 damage,at_range=(0,-1)
@@ -90,7 +96,7 @@ while not done:
             for thing in buttons:
                 if thing.checkForInput(pos):
                     attacking=False if attacking else True
-                    damage,at_range = attack(eval(thing.text_input)())
+                    damage,at_range = attack((inventory[thing.text_input].damage["damage_dice"],inventory[thing.text_input].range["normal"]))
             
             col = (pos[0] - BOARD_MARGIN) // (WIDTH + MARGIN)
             row = (pos[1]) // (HEIGHT + MARGIN)
@@ -99,25 +105,29 @@ while not done:
             if get_turn() == MY_PLAYER:
                 
                 if 0 <= row < GRID_SIZE and 0 <= col < GRID_SIZE:
-                    if grid[row][col] != " " and attacking == True and ((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
+                    if grid[row][col] not in {" ", "obj",MY_PLAYER} and attacking == True and ((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
                         opponent= grid[row][col]
-                        print(f"{opponent} damaged for {damage}")
-                        attacking=False
-                    if last_row==row and last_col==col:
-                        grid[player_row][player_col] = ' '
-                        d_row= 1 if players[MY_PLAYER].row<row else -1
-                        d_col= 1 if players[MY_PLAYER].col<col else -1
-                        target_row=row
-                        target_col=col
-                        damage,at_range=(0,-1)
-                        grid[players[MY_PLAYER].row][players[MY_PLAYER].col] = MY_PLAYER
-                        last_col=None
-                        last_row=None
+                        players[opponent].sheet.current_hp=players[opponent].sheet.current_hp-damage
+                        attack_animation=(BOARD_MARGIN+col*(HEIGHT+MARGIN),row*(HEIGHT+MARGIN))
+                        if players[opponent].sheet.current_hp == 0:
+                            players.pop(opponent)
+                            grid[row][col] = 20
                         attacking=False
                     else:
-                    
-                        last_row=row
-                        last_col=col
+                        if last_row==row and last_col==col:
+                            grid[player_row][player_col] = ' '
+                            d_row= 1 if players[MY_PLAYER].row<row else -1
+                            d_col= 1 if players[MY_PLAYER].col<col else -1
+                            target_row=row
+                            target_col=col
+                            damage,at_range=(0,-1)
+                            grid[players[MY_PLAYER].row][players[MY_PLAYER].col] = MY_PLAYER
+                            last_col=None
+                            last_row=None
+                            attacking=False
+                        else:
+                            last_row=row
+                            last_col=col
             
     if move_time==2 and (d_row!=0 or d_col!=0):
         if d_row==0:
@@ -157,25 +167,27 @@ while not done:
     
     screen.fill(BLACK)
 
-
-    
-   
     for row in range(GRID_SIZE):
         for col in range(GRID_SIZE):
             cell_color = GRAY
-            if (row, col) == (last_row,last_col):
+            if type(grid[row][col]) == int:
+                cell_color = RED if grid[row][col]%2==0 else GRAY
+                grid[row][col]-=1
+                if grid[row][col]==0:
+                    grid[row][col] = " "
+                
+            elif (row, col) == (last_row,last_col):
                 cell_color = WHITE
-            if attacking==True and((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
+            elif attacking==True and((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
                 cell_color = RED
             pygame.draw.rect(screen, cell_color, [(MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
                                                   (MARGIN + HEIGHT) * row + MARGIN,
                                                   WIDTH, HEIGHT])
             font = pygame.font.SysFont(None, 30)
-            text = font.render(grid[row][col], True, GREEN)
             if grid[row][col] =="obj":
                 screen.blit(rock, ((MARGIN + WIDTH) * col + MARGIN + BOARD_MARGIN,
                                (MARGIN + HEIGHT) * row + MARGIN))
-            elif  grid[row][col] != ' ':
+            elif  grid[row][col] != ' ' and type(grid[row][col])!= int:
                 current=players[grid[row][col]]
                 screen.blit(current.image, ((MARGIN + WIDTH) * current.col + MARGIN + BOARD_MARGIN,
                                (MARGIN + HEIGHT) * current.row + MARGIN))
@@ -191,7 +203,15 @@ while not done:
     for button in buttons:
         button.changeColor(pygame.mouse.get_pos())
         button.update(screen)
-
+    if attack_animation!=(None,None):
+        counter+=0.5
+        screen.blit(anims[pick][int(counter//1)],attack_animation)
+        if int(counter//1) >= 5:
+            counter=0
+            pick=random.randint(0,1)
+            attack_animation=(None,None)
+       
+    
     pygame.display.flip()
 
     clock.tick(60)

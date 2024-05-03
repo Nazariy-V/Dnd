@@ -1,10 +1,10 @@
 import random 
 def attack(roll):
-
-    return (sum([random.randint(1,roll[0][1]) for i in range(roll[0][0])]),roll[1]//5)
+    amount,dice = map(int,roll[0].split("d"))
+    return (sum([random.randint(1,dice) for i in range(amount)]),roll[1]//5)
 def longsword():
     return ((1,8), 5)
 def shortsword():
     return ((1,6), 5)
 def shortbow():
-    return ((1,6), 80)
+    return ((10,60), 80)
