@@ -1,5 +1,5 @@
 import pygame
-import sys,random
+import sys,random,socket,json
 from connect import *
 from settings import *
 from tiling import *
@@ -84,9 +84,12 @@ for i in players[MY_PLAYER].sheet.inventory:
 clock = pygame.time.Clock()
 
 damage,at_range=(0,-1)
-
+HOST="localhost"
+PORT=8080
+user_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+user_socket.connect((HOST,PORT))
 while not done:
-
+    print(json.loads(user_socket.recv(1024)))
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
@@ -108,7 +111,7 @@ while not done:
                     if grid[row][col] not in {" ", "obj",MY_PLAYER} and attacking == True and ((players[MY_PLAYER].row - at_range-1)<row<(players[MY_PLAYER].row + at_range+1) and (players[MY_PLAYER].col - at_range-1)<col<(players[MY_PLAYER].col + at_range+1)):
                         opponent= grid[row][col]
                         players[opponent].sheet.current_hp=players[opponent].sheet.current_hp-damage
-                        attack_animation=(BOARD_MARGIN+col*(HEIGHT+MARGIN),row*(HEIGHT+MARGIN))
+                        attack_animation=(BOARD_MARGIN+col*0.5+col*(HEIGHT+MARGIN),row*0.5+row*(HEIGHT+MARGIN))
                         if players[opponent].sheet.current_hp == 0:
                             players.pop(opponent)
                             grid[row][col] = 20
@@ -208,7 +211,7 @@ while not done:
         screen.blit(anims[pick][int(counter//1)],attack_animation)
         if int(counter//1) >= 5:
             counter=0
-            pick=random.randint(0,1)
+            pick=0
             attack_animation=(None,None)
        
     
