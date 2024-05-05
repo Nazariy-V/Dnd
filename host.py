@@ -90,11 +90,33 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('localhost', 8080)  # Change this to your desired host and port
 server_socket.bind(server_address)
 server_socket.listen(5)
+data=[]
 users=[]
+objs=[]
+for row in range(GRID_SIZE):
+    for col in range(GRID_SIZE):
+        if grid[row][col] == "obj":
+            objs.append((row,col))
+    
 while not done:
+    
+    sendable_data={name:((obj.row,obj.col),obj.sheet.current_hp)for name,obj in players.items()}
     if users==[]:
         users.append(server_socket.accept())
-    users[0][0].send(json.dumps(grid).encode('utf-8'))
+        users[-1][0].send((".".join(",".join(map(str, item)) for item in objs)).encode('utf-8'))
+    for user in users:
+        
+        
+        user[0].send(json.dumps(sendable_data).encode('utf-8')+b"split")
+        sendable_data=data
+        for i in user[0].recv(2048).split(b"split"):
+            if i!=b"":
+                data = json.loads(i)
+                for name,charac in data.items():
+                    players[name].sheet.current_hp=charac[1]
+                    players[name].row=charac[0][0]
+                    players[name].col=charac[0][1]
+    
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
@@ -214,7 +236,7 @@ while not done:
     if attack_animation!=(None,None):
         counter+=0.5
         screen.blit(anims[pick][int(counter//1)],attack_animation)
-        if int(counter//1) >= 5:
+        if int(counter//1) >= 2:
             counter=0
             pick=0
             attack_animation=(None,None)

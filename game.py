@@ -65,12 +65,8 @@ for conection,charr in get_connections().items():
 
 for player,ob in players.items():
     grid[ob.row][ob.col]=player
-for i in range(OBJECTS):
-    n=random.randint(1,GRID_SIZE-2)
-    m=random.randint(1,GRID_SIZE-2)
-    grid[n][m]="obj" if grid[n][m]==" " else grid[n][m]
-del n
-del m
+
+
 rock=pygame.image.load(f"assets/Rock Pile.png")
 done = False
 buttons=[]
@@ -88,8 +84,21 @@ HOST="localhost"
 PORT=8080
 user_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 user_socket.connect((HOST,PORT))
+
+for t in user_socket.recv(1024).decode("utf-8").split("."):
+    n,m=map(int,t.split(","))
+    grid[n][m]="obj" if grid[n][m]==" " else grid[n][m]
+data = 0 
 while not done:
-    print(json.loads(user_socket.recv(1024)))
+    for i in user_socket.recv(2048).split(b"split"):
+        if i!=b"":
+            data = json.loads(i)
+            print(data)
+            for name,charac in data.items():
+                players[name].sheet.current_hp=charac[1]
+                players[name].row=charac[0][0]
+                players[name].col=charac[0][1]
+    
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
@@ -209,7 +218,7 @@ while not done:
     if attack_animation!=(None,None):
         counter+=0.5
         screen.blit(anims[pick][int(counter//1)],attack_animation)
-        if int(counter//1) >= 5:
+        if int(counter//1) >= 2:
             counter=0
             pick=0
             attack_animation=(None,None)
@@ -218,6 +227,8 @@ while not done:
     pygame.display.flip()
 
     clock.tick(60)
+    sendable_data={name:((obj.row,obj.col),obj.sheet.current_hp)for name,obj in players.items()}
+    user_socket.send(json.dumps(sendable_data).encode('utf-8')+b"split")
 
 pygame.quit()
 sys.exit()
