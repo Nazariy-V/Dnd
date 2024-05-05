@@ -8,8 +8,7 @@ def send_character():
     pass
 def get_turn():
     return "1"
-def send_map(map):
-     client_socket.send(map)
+
 
 
 
