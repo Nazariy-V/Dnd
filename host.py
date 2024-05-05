@@ -32,7 +32,7 @@ WINDOW_SIZE = [(WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,
 screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame_icon= pygame.image.load("assets/d20.jpg")
 pygame.display.set_icon(pygame_icon)
-pygame.display.set_caption("DnD")
+pygame.display.set_caption("HOST DnD")
 
 attack_animation=(None,None)
 counter= 0
@@ -93,6 +93,8 @@ server_socket.listen(5)
 data=[]
 users=[]
 objs=[]
+turns=[]
+turn=0
 for row in range(GRID_SIZE):
     for col in range(GRID_SIZE):
         if grid[row][col] == "obj":
@@ -103,14 +105,17 @@ while not done:
     sendable_data={name:((obj.row,obj.col),obj.sheet.current_hp)for name,obj in players.items()}
     if users==[]:
         users.append(server_socket.accept())
+        turns.append(users[-1][1])
         users[-1][0].send((".".join(",".join(map(str, item)) for item in objs)).encode('utf-8'))
     for user in users:
-        
+        user[0].send(json.dumps(sendable_data).encode('utf-8')+b"split")
         
         user[0].send(json.dumps(sendable_data).encode('utf-8')+b"split")
         sendable_data=data
         for i in user[0].recv(2048).split(b"split"):
-            if i!=b"":
+            if i=="pass":
+                turn+=1
+            elif i!=b"":
                 data = json.loads(i)
                 for name,charac in data.items():
                     players[name].sheet.current_hp=charac[1]

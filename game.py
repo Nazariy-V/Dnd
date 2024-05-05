@@ -77,6 +77,10 @@ for i in players[MY_PLAYER].sheet.inventory:
                             (HEIGHT + MARGIN)), 
                             text_input=i.name, font=get_font(30), base_color="Gray", hovering_color="White"))
         inventory[i.name] = i
+buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2 * BOARD_MARGIN,
+               (HEIGHT + MARGIN) * GRID_SIZE + MARGIN), 
+                            text_input="pass turn", font=get_font(30), base_color="Gray", hovering_color="Red"))
+
 clock = pygame.time.Clock()
 
 damage,at_range=(0,-1)
@@ -108,7 +112,10 @@ while not done:
             for thing in buttons:
                 if thing.checkForInput(pos):
                     attacking=False if attacking else True
-                    damage,at_range = attack((inventory[thing.text_input].damage["damage_dice"],inventory[thing.text_input].range["normal"]))
+                    if thing.text_input=="pass turn":
+                        exit_flag=True
+                    else:
+                        damage,at_range = attack((inventory[thing.text_input].damage["damage_dice"],inventory[thing.text_input].range["normal"]))
             
             col = (pos[0] - BOARD_MARGIN) // (WIDTH + MARGIN)
             row = (pos[1]) // (HEIGHT + MARGIN)
