@@ -108,7 +108,7 @@ while not done:
         turns.append(users[-1][1])
         users[-1][0].send((".".join(",".join(map(str, item)) for item in objs)).encode('utf-8'))
     for user in users:
-        user[0].send(json.dumps(objs).encode('utf-8')+b"split")
+        #user[0].send(json.dumps(objs).encode('utf-8')+b"split")
         
         user[0].send(json.dumps(sendable_data).encode('utf-8')+b"split")
         sendable_data=data
