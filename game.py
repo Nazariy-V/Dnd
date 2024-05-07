@@ -84,7 +84,7 @@ buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2
 clock = pygame.time.Clock()
 
 damage,at_range=(0,-1)
-HOST="localhost"
+HOST="192.168.1.12"
 PORT=8080
 user_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 user_socket.connect((HOST,PORT))

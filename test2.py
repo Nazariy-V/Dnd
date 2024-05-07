@@ -1,7 +1,7 @@
 import socket
 
 def client_program():
-    host = "localhost"  # Assuming both server and client run on the same machine
+    host = "192.168.1.12"  # Assuming both server and client run on the same machine
     port = 8080  # Change this to the server's port number
     print(host, port)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -87,7 +87,7 @@ damage,at_range=(0,-1)
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', 8080)  # Change this to your desired host and port
+server_address = ('', 8080)  # Change this to your desired host and port
 server_socket.bind(server_address)
 server_socket.listen(5)
 data=[]
