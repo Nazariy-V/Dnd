@@ -87,9 +87,11 @@ damage,at_range=(0,-1)
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', 8080)  # Change this to your desired host and port
+server_address = ('', 8080)  # Change this to your desired host and port
 server_socket.bind(server_address)
+print(server_socket.getsockname())
 server_socket.listen(5)
+server_socket.settimeout(0.2)
 data=[]
 users=[]
 objs=[]
@@ -103,10 +105,12 @@ for row in range(GRID_SIZE):
 while not done:
     
     sendable_data={name:((obj.row,obj.col),obj.sheet.current_hp)for name,obj in players.items()}
-    if users==[]:
+    try:
         users.append(server_socket.accept())
         turns.append(users[-1][1])
         users[-1][0].send((".".join(",".join(map(str, item)) for item in objs)).encode('utf-8'))
+    except socket.timeout:
+        pass
     for user in users:
         #user[0].send(json.dumps(objs).encode('utf-8')+b"split")
         
@@ -187,7 +191,8 @@ while not done:
             players[MY_PLAYER].col+=d_col
 
         move_time=0
-        grid[players[MY_PLAYER].row][players[MY_PLAYER].col] = MY_PLAYER
+        for player,obj in players.items():
+            grid[obj.row][obj.col] = player
     
     else:
         move_time+=1

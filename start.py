@@ -18,6 +18,7 @@ def play():
     
     
 def setup():
+    
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
@@ -29,8 +30,14 @@ def setup():
 
         OPTIONS_BACK = Button(image=None, pos=(640, 460), 
                             text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
-
+        input_box1 = InputBox(100, 100, 140, 32,"Black", "Green")
+        input_box2 = InputBox(100, 300, 140, 32,"Black", "Green")
+        input_boxes = [input_box1, input_box2]
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
+        for i in input_boxes:
+            i.update
+        for i in input_boxes:
+            i.draw(SCREEN)
         OPTIONS_BACK.update(SCREEN)
 
         for event in pygame.event.get():
@@ -40,8 +47,11 @@ def setup():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
                     main_menu()
+            for bx in input_boxes:
+                bx.handle_event(event)
+            
 
-        pygame.display.update()
+        pygame.display.flip()
 
 def main_menu():
     while True:

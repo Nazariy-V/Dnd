@@ -7,7 +7,7 @@ def get_connections():
 def send_character():
     pass
 def get_turn():
-    return "1"
+    return "2"
 
 
 
