@@ -1,12 +1,11 @@
 import socket
 
 def client_program():
-    host = "192.168.1.12"  # Assuming both server and client run on the same machine
+    host = "localhost"  # Assuming both server and client run on the same machine
     port = 8080  # Change this to the server's port number
-    print(host, port)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))  # Connect to the server
-
+    
     player_name = input("Enter your name: ")
     client_socket.send(player_name.encode('utf-8'))  # Send player's name to the server
 

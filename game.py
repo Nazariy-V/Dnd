@@ -84,7 +84,7 @@ buttons.append(Button(image=None, pos=((WIDTH + MARGIN) * GRID_SIZE + MARGIN + 2
 clock = pygame.time.Clock()
 
 damage,at_range=(0,-1)
-HOST="192.168.1.12"
+HOST=""
 PORT=8080
 user_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 user_socket.connect((HOST,PORT))
@@ -97,7 +97,7 @@ while not done:
     for i in user_socket.recv(2048).split(b"split"):
         if i!=b"":
             data = json.loads(i)
-            print(data)
+            print(grid)
             for name,charac in data.items():
                 players[name].sheet.current_hp=charac[1]
                 players[name].row=charac[0][0]
